@@ -12,5 +12,26 @@
     android:layout_height="wrap_content"
     android:src="@drawable/normalmenu"
     android:visibility="invisible" />
+
+<EditText
+    android:id="@+id/editText1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBottom="@+id/button1"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentTop="true"
+    android:layout_toLeftOf="@+id/button1"
+    android:ems="10" >
+
+    <requestFocus />
+</EditText>
+
+<Button
+    android:id="@+id/button1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentTop="true"
+    android:text="GO" />
     
 </RelativeLayout>
