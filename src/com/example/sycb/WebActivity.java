@@ -19,7 +19,8 @@ public class WebActivity extends Activity {
 	private GestureDetector mGestureDetector;
 	private ImageView img;
 	public static GDB_DTB_High_Interface GDHI;
-
+	private boolean longPress = false;
+	private float longPressX, longPressY;
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
@@ -53,16 +54,37 @@ public class WebActivity extends Activity {
 				 */
 			}
 		});
-		webView.setLongClickable(false);
+		
 		img = (ImageView) findViewById(R.id.imageView1);
 		mGestureDetector = new GestureDetector(this, new MyOnGestureListener());
 		webView.setOnTouchListener(new OnTouchListener() {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
 		        Log.i(getClass().getName(), "onTouch-----" + getActionName(event.getAction()));
-		        mGestureDetector.onTouchEvent(event);
-		        //Must return true to obtain full event
-		        return false;
+		        if (event.getAction() == MotionEvent.ACTION_MOVE && longPress){
+		        	float offX = event.getX() - longPressX;
+		        	float offY = event.getY() - longPressY;
+		        	float offD = (float) (Math.atan2(offY, offX)/2/Math.PI*360f);
+		        	Log.i("Move - atan2", Double.toString(Math.atan2(offY, offX)/2/Math.PI*360f));
+		        	if(Math.sqrt(
+		        			(offX * offX)+
+		        			(offY * offY)) > 50){
+		        		if (offD < 45 && offD > -90)
+		        			img.setImageDrawable(getResources().getDrawable(R.drawable.rmenu));
+		        		else if (offD < -90 || offD > 135)
+		        			img.setImageDrawable(getResources().getDrawable(R.drawable.lmenu));
+		        		else if (offD < 135 && offD > 45)
+		        			img.setImageDrawable(getResources().getDrawable(R.drawable.dmenu));
+		        	}else
+		        		img.setImageDrawable(getResources().getDrawable(R.drawable.normalmenu));
+		        }
+		        if (event.getAction() == MotionEvent.ACTION_UP){
+		        	if (longPress){
+		        		img.setVisibility(View.INVISIBLE);
+		        	}
+		        	longPress = false;
+		        }
+		        return mGestureDetector.onTouchEvent(event);
 		    }
 		});
 		// GDHI.viewPage(webView);
@@ -85,7 +107,7 @@ public class WebActivity extends Activity {
 	
 	class MyOnGestureListener extends SimpleOnGestureListener {
 		
-		private boolean longPress = false;
+		
 
 		@Override
 		public void onLongPress(MotionEvent e) {
@@ -93,8 +115,10 @@ public class WebActivity extends Activity {
 		    //Set image visible
 		    longPress = true;
 		    img.setVisibility(View.VISIBLE);
-		    img.setX(e.getX());
-		    img.setY(e.getY());
+		    longPressX = e.getX();
+		    longPressY = e.getY();
+		    img.setX(e.getX()-150);
+		    img.setY(e.getY()-150);
 		}
 		
 		@Override
