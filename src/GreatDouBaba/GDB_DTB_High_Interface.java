@@ -199,6 +199,7 @@ public class GDB_DTB_High_Interface implements Runnable {
 	
 	public String[][] getHistory(){
 		return connecter.getHistory();
+		
 	}
 	public String[] getUrlInfo(String Url){
 		return connecter.getUrlInfo(Url);
