@@ -20,12 +20,12 @@ public class WebActivity extends Activity {
 
 		webView.getSettings().setJavaScriptEnabled(true);
 		
-		webView.loadUrl("http://www.google.com");
+		webView.loadUrl("https://www.cs.purdue.edu/");
 		
 		GDHI = new GDB_DTB_High_Interface(this);
 		webView.setWebViewClient(new WebViewClient() {
-
-			   public void onPageFinished(WebView view, String url) {
+				
+			   	public void onPageFinished(WebView view, String url) {
 			        System.out.println(url);
 			        WebActivity.GDHI.setAction("viewPage");
 			        WebActivity.GDHI.setWebview(view);
@@ -35,12 +35,19 @@ public class WebActivity extends Activity {
 			        /*String[][] test = WebActivity.GDHI.getHistory();
 			        if(test!=null)
 			        for(int i=0; i<test.length; i++){
-			        	System.out.println(test[i][0]+ "-"+ test[i][1]+ "-"+ test[i][2]);
+			        	System.out.println(test[i][0]+ "-"+ test[i][1]+ "-"+ test[i][2]+"-"+test[i][3]);
 			        }
-			        else
-			        	System.out.println("SHITTTTTTTTTTTTTTTTTTT");
-			        String[] test2 = WebActivity.GDHI.getUrlInfo(test[0][1]);
-			    	System.out.println(test2[0]+ "\n"+ test2[1]+ "\n"+ test2[2]);*/
+			        */
+			        
+			        System.out.println("----------start--------------");
+			        String test2[] = WebActivity.GDHI.gerWordByTitleWithCase("CCc");
+			        if(test2!=null)
+			        	for(int i=0; i<test2.length; i++)
+			        		System.out.println(test2[i]);
+			        	
+			        
+			        //String[] test2 = WebActivity.GDHI.getUrlInfo(test[0][1]);
+			    	//System.out.println(test2[0]+ "\n"+ test2[1]+ "\n"+ test2[2]);
 			    }
 			});
 		
