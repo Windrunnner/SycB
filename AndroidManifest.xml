@@ -15,14 +15,14 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:label="@string/app_name">
         <activity
         	android:name="com.example.sycb.WebActivity"
         	android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name="com.example.sycb.MainActivity"
             android:label="@string/app_name" >
+            <!--To determine which activity is the main activity, The activity that has the intent-filter tag is designated as the main activity when you launch the app-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
