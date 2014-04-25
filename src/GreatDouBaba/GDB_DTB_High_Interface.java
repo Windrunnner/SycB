@@ -272,4 +272,36 @@ public class GDB_DTB_High_Interface implements Runnable {
 	public String[] getUrlInfo(String Url){
 		return connecter.getUrlInfo(Url);
 	}
+	
+	public String[] getHistoryColumns(){
+		return connecter.getHistoryColumns();
+	}
+	
+	public String[] getBookmarkColumns(){
+		return connecter.getBookmarkColumns();
+	}
+	
+	public String[] getBackGroundColumns(){
+		return connecter.getBackGroundColumns();
+	}
+	
+	public String[] getWordColumns(){
+		return connecter.getWordColumns();
+	}
+	
+	public String[] getContentColumns(){
+		return connecter.getContentColumns();
+	}
+	
+	public String[] getViewColumns(){
+		return connecter.getViewColumns();
+	}
+	
+	public String[] getCurrentColumns(){
+		return connecter.getCurrentColumns();
+	}
+	
+	public String[] getPasswordColumns(){
+		return connecter.getPasswordColumns();
+	}
 }

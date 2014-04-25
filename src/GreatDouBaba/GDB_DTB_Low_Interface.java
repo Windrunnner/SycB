@@ -31,6 +31,7 @@ public class GDB_DTB_Low_Interface extends SQLiteOpenHelper {
 
 	private static final String[] Bookmark_colums = { "Id", "Url", "Title", };
 
+
 	private static final String CREATE_BACKGROUND_TABLE = "CREATE TABLE BACKGROUND ( "
 			+ "Id INTEGER primary key, "
 			+ "X_cor integer, "
@@ -42,6 +43,7 @@ public class GDB_DTB_Low_Interface extends SQLiteOpenHelper {
 	private static final String[] BackGround_colums = { "X_cor", "Y_cor",
 			"X_size", "Y_size", "Comment", "Type", "Ico" };
 
+
 	private static final String CREATE_VIEW_TABLE = "CREATE TABLE VIEW ( "
 			+ "Id INTEGER primary key, " + "Url TEXT, " + "Count INTEGER, "
 			+ "Screenshot TEXT, " + "Ico TEXT, " + "Title TEXT, "
@@ -50,19 +52,24 @@ public class GDB_DTB_Low_Interface extends SQLiteOpenHelper {
 	private static final String CREATE_WORD_TABLE = "CREATE TABLE WORD ("
 			+ "Id INTEGER, " + "Word TEXT);";
 
+	
 	private static final String[] Word_colums = { "Id", "Word" };
 
 	private static final String CREATE_CONTENT_TABLE = "CREATE TABLE CONTENT ("
 			+ "Id INTEGER, " + "Word TEXT);";
 
+	
 	private static final String[] CONTENT_colums = { "Id", "Word" };
 
 	private static final String[] View_colums = { "Id", "Url", "Count",
 			"Screenshot", "Ico", "Title", "Content TEXT" };
 
+	
+	
 	private static final String CREATE_CURRENT_TABLE = "CREATE TABLE CURRENT ( "
 			+ "Url TEXT, " + "Id INTEGER );";
 
+	
 	private static final String[] Current_colums = { "Url", "Id" };
 
 	private static final String CREATE_PASSWORD_TABLE = "CREATE TABLE PASSWORD ( "
@@ -71,6 +78,8 @@ public class GDB_DTB_Low_Interface extends SQLiteOpenHelper {
 			+ "Password_lab TEXT, "
 			+ "Account TEXT, " + "Password TEXT);";
 
+	
+	
 	private static final String[] Password_colums = { "Url", "Account_lab",
 			"Password_lab", "Account", "Password" };
 
@@ -207,7 +216,7 @@ public class GDB_DTB_Low_Interface extends SQLiteOpenHelper {
 
 		Log.d("Adding Password End", "test");
 	}
-
+	
 	public String[][] getHistory() {
 		Log.d("Get History Start", "test");
 		SQLiteDatabase db = this.getWritableDatabase();
@@ -522,6 +531,38 @@ public class GDB_DTB_Low_Interface extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete("CURRENT", "Id = ?", new String[] { Id });
 		Log.d("Delete Current End", "test");
+	}
+
+	public String[] getHistoryColumns(){
+		return History_columns;
+	}
+	
+	public String[] getBookmarkColumns(){
+		return Bookmark_colums;
+	}
+	
+	public String[] getBackGroundColumns(){
+		return BackGround_colums;
+	}
+	
+	public String[] getWordColumns(){
+		return Word_colums;
+	}
+	
+	public String[] getContentColumns(){
+		return CONTENT_colums;
+	}
+	
+	public String[] getViewColumns(){
+		return View_colums;
+	}
+	
+	public String[] getCurrentColumns(){
+		return Current_colums;
+	}
+	
+	public String[] getPasswordColumns(){
+		return Password_colums;
 	}
 }
 
