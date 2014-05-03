@@ -7,10 +7,15 @@ import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.*;
 import android.view.View.OnTouchListener;
+import android.view.animation.Animation;
+import android.view.animation.*;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import android.graphics.Bitmap;
 
 
 public class WebActivity extends Activity {
@@ -18,6 +23,8 @@ public class WebActivity extends Activity {
 	private WebView webView;
 	private GestureDetector mGestureDetector;
 	private ImageView img;
+	private EditText addField;
+	private Button goButton;
 	public static GDB_DTB_High_Interface GDHI;
 	private boolean longPress = false;
 	private float longPressX, longPressY;
@@ -28,16 +35,28 @@ public class WebActivity extends Activity {
 		setContentView(R.layout.webcontent);
 
 		webView = (WebView) findViewById(R.id.webView);
-
+		addField  = (EditText) findViewById(R.id.editText1);
+		goButton = (Button) findViewById(R.id.button1);
 		webView.getSettings().setJavaScriptEnabled(true);
 
 		webView.loadUrl("http://www.google.com");
+		addField.setText("http://www.google.com");
 
 		GDHI = new GDB_DTB_High_Interface(this);
 		webView.setWebViewClient(new WebViewClient() {
-
+			@Override
+			public void onPageStarted(WebView view, String url, Bitmap favicon){
+				addField.setText(url);
+				addField.setVisibility(View.VISIBLE);
+		    	goButton.setVisibility(View.VISIBLE);
+				super.onPageStarted(view, url, favicon);
+			}
+			
+			@Override
 			public void onPageFinished(WebView view, String url) {
 				System.out.println(url);
+		    	addField.setVisibility(View.INVISIBLE);
+		    	goButton.setVisibility(View.INVISIBLE);
 				WebActivity.GDHI.setAction("viewPage");
 				WebActivity.GDHI.setWebview(view);
 				Thread viewP = new Thread(WebActivity.GDHI);
@@ -100,7 +119,9 @@ public class WebActivity extends Activity {
 					Toast.LENGTH_LONG).show();
 
 	}
-	
+	public void goURL(View view){
+		webView.loadUrl(addField.getText().toString());
+	}
 	public void showToast(String string){
 		Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
 	}
@@ -119,6 +140,9 @@ public class WebActivity extends Activity {
 		    longPressY = e.getY();
 		    img.setX(e.getX()-150);
 		    img.setY(e.getY()-150);
+		    Animation scaleAnimation = new ScaleAnimation(0.1f, 1, 0.1f, 1, e.getX(), e.getY());
+		    scaleAnimation.setDuration(200);
+		    img.startAnimation(scaleAnimation);
 		}
 		
 		@Override
@@ -148,6 +172,15 @@ public class WebActivity extends Activity {
 		    if (e1.getX() >550 && e2.getX() < 450 && Math.abs(e2.getY() - e1.getY()) < Math.abs(e2.getX() - e1.getX())){
 		    	webView.goForward();
 		    	showToast("Go Forward");
+		    }
+		    
+		    if(e1.getY() - e2.getY() < -200){
+		    	addField.setVisibility(View.VISIBLE);
+		    	goButton.setVisibility(View.VISIBLE);
+		    }
+		    if(e1.getY() - e2.getY() > 200){
+		    	addField.setVisibility(View.INVISIBLE);
+		    	goButton.setVisibility(View.INVISIBLE);
 		    }
 		    return false;
 		}
