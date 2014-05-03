@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,7 +21,6 @@ import android.graphics.Picture;
 import android.graphics.drawable.PictureDrawable;
 import android.util.Base64;
 import android.util.Log;
-import android.webkit.WebIconDatabase;
 import android.webkit.WebView;
 
 public class GDB_DTB_High_Interface implements Runnable {
@@ -53,10 +54,6 @@ public class GDB_DTB_High_Interface implements Runnable {
 		Log.d("GDB_DTB_High_Interface end", "test");
 	}
 
-	public String[] restore() {
-		return null;
-	}
-
 	private String convertBitmapToString(Bitmap src) {
 		String str = null;
 		if (src != null) {
@@ -83,8 +80,8 @@ public class GDB_DTB_High_Interface implements Runnable {
 	private Bitmap pictureDrawable2Bitmap(Picture picture) {
 		PictureDrawable pictureDrawable = new PictureDrawable(picture);
 		Bitmap bitmap = Bitmap.createBitmap(
-				pictureDrawable.getIntrinsicWidth(),
-				pictureDrawable.getIntrinsicHeight(), Config.ARGB_8888);
+				400,
+				300, Config.ARGB_8888);
 		Canvas canvas = new Canvas(bitmap);
 		canvas.drawPicture(pictureDrawable.getPicture());
 		return bitmap;
@@ -130,22 +127,39 @@ public class GDB_DTB_High_Interface implements Runnable {
 		String dataStr = convertBitmapToString(data);
 		return dataStr;
 	}
-
+	
 	
 	public void viewPage(WebView webview) { // Url
 		try {
 			Log.d("view page Start", webview.getUrl());
 			String Url = webview.getUrl();
 			String Title = "None";
-			String[] words = null;
-			//String inputLine;
+			String words[] = null;
 			URL page = new URL(Url);
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					page.openStream()));
-			//StringBuilder input = new StringBuilder();
-			/*while ((inputLine = in.readLine()) != null)
-				input.append(inputLine);
-			*/
+			StringBuilder contentBDR = new StringBuilder();
+			long len=0;
+			for (int ch = 0, door = 1; (ch = in.read()) != -1;)
+				if (ch == '<' || ch == '\n') {
+					if (door == 2) {
+						contentBDR.append(" ");
+						len = len + 1;
+					}
+					door = 0;
+				} else if (ch == '>')
+					door = 1;
+				else if ((door == 1 || door == 2)
+						&& ((ch > 64 && ch < 91) || (ch > 96 && ch < 123)
+								|| (ch > 47 && ch < 58) || ch == ' ')) {
+					contentBDR.append((char) (ch));
+					door = 2;
+					len++;
+				}
+			
+			String content = contentBDR.toString();
+			System.out.print(content);
+			String[] contentWord = content.split(" ");
 			if (webview.getTitle()!=null) {
 				Title = webview.getTitle();
 				StringBuilder getwords = new StringBuilder();
@@ -153,55 +167,141 @@ public class GDB_DTB_High_Interface implements Runnable {
 					char ch = Title.charAt(i);
 					if ((ch > 64 && ch < 91) || (ch > 96 && ch < 123)
 							|| (ch > 47 && ch < 58) || ch == ' ')
-						getwords.append((char)(ch > 96 ? ch - 32 : ch));
+						getwords.append((char)ch);
 				}
 				words = getwords.toString().split(" "); // words
-				Log.d("test Word", words[0]);
+				
 			}
-			
-			String urlIco = getIco(Url);
+			String urlIco;
+			try{
+				urlIco = getIco(Url);
+			}catch(Exception e){
+				urlIco = "";
+				Log.d("thing happend: ico", "but I got this");
+			}
 			Calendar c = Calendar.getInstance();
 			@SuppressWarnings("deprecation")
 			String Date = c.getTime().toGMTString(); // date
-			Picture picture = webview.capturePicture();
-			Bitmap bitmap = pictureDrawable2Bitmap(picture);
-			String screenshot = convertBitmapToString(bitmap);
+			String screenshot;
+			try{
+				Picture picture = webview.capturePicture();
+				Bitmap bitmap = pictureDrawable2Bitmap(picture);
+				screenshot = convertBitmapToString(bitmap);
+			}catch(Exception e){
+				screenshot = "";
+				Log.d("thing happend: screenshot", "but I got this");
+			}
 			int Id = webview.getId();
 			
 			if(connecter.addHistroy(Date, Url, Title, String.valueOf(Id))){
 				connecter.addCurrent(Url, Id);
-				connecter.addView(Url, screenshot, urlIco);
-				connecter.addWord(words, Url);
+				connecter.addView(Url, screenshot, urlIco, Title, Title);
+				connecter.addWordToTitle(words, Url);
+				connecter.addWordToContent(contentWord, Url);
 			}else
-				connecter.addView(Url, screenshot, urlIco);
-			
-			
-			in.close();
+				connecter.addView(Url, screenshot, urlIco, Title, Title);
+
+		//	in.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.d("viewPage BUG", "test");
+		} finally {
+			Runtime.getRuntime().gc();
 		}
 		Log.d("view page End", "test");
 	}
 
 	public void closePage(WebView webview) {
 		int Id = webview.getId();
-		connecter.deleteCurrent(Id);
+		connecter.deleteCurrent(String.valueOf(Id));
 	}
-
+	
+	public void deleteBookmark(String Id) {
+		connecter.deleteBookmark(Id);
+	}
+	
+	public void deleteHistory(String Id){
+		connecter.deleteHistory(Id);
+	}
+	
+	public void deleteBookmark(int Id){
+		connecter.deleteBookmark(String.valueOf(Id));
+	}
+	
+	public void deleteHistory(int Id){
+		connecter.deleteHistory(String.valueOf(Id));
+	}
+	
 	public void addBookmark(WebView webview) {
-
+		String Url = webview.getUrl();
+		String Title = webview.getTitle();
+		connecter.addBookmark(Url, Title);
+	}
+	
+	public String[][] getBookmark(){
+		return connecter.getBookmark();
 	}
 
-	public void deleteBookmark(WebView webview) {
-
+	public String[] getCurrent(){
+		return connecter.getCurrent();
+	}
+	
+	public String[][] getView(int Count){
+		return connecter.getView(Count);
+	}
+	
+	public String[] gerWordByTitleWithCase(String sentance){
+		return connecter.getWordByTitleHasCase(sentance);
+	}
+	
+	public String[] gerWordByContentWithCase(String sentance){
+		return connecter.getWordByContentHasCase(sentance);
+	}
+	
+	public String[] gerWordByTitleNoCase(String sentance){
+		return connecter.getWordByTitleNoCase(sentance);
+	}
+	
+	public String[] gerWordByContentNoCase(String sentance){
+		return connecter.getWordByContentNoCase(sentance);
 	}
 	
 	public String[][] getHistory(){
 		return connecter.getHistory();
-		
 	}
 	public String[] getUrlInfo(String Url){
 		return connecter.getUrlInfo(Url);
+	}
+	
+	public String[] getHistoryColumns(){
+		return connecter.getHistoryColumns();
+	}
+	
+	public String[] getBookmarkColumns(){
+		return connecter.getBookmarkColumns();
+	}
+	
+	public String[] getBackGroundColumns(){
+		return connecter.getBackGroundColumns();
+	}
+	
+	public String[] getWordColumns(){
+		return connecter.getWordColumns();
+	}
+	
+	public String[] getContentColumns(){
+		return connecter.getContentColumns();
+	}
+	
+	public String[] getViewColumns(){
+		return connecter.getViewColumns();
+	}
+	
+	public String[] getCurrentColumns(){
+		return connecter.getCurrentColumns();
+	}
+	
+	public String[] getPasswordColumns(){
+		return connecter.getPasswordColumns();
 	}
 }
