@@ -3,7 +3,6 @@ package com.example.sycb;
 import GreatDouBaba.GDB_DTB_High_Interface;
 import android.app.Activity;
 import android.os.Bundle;
-<<<<<<< HEAD
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.*;
@@ -18,22 +17,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.graphics.Bitmap;
 
-=======
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
->>>>>>> fae43964cfc990668f1704ec9a66ba6e24a5ab6b
 
 public class WebActivity extends Activity {
 
 	private WebView webView;
-<<<<<<< HEAD
 	private GestureDetector mGestureDetector;
 	private ImageView img;
 	private EditText addField;
 	private Button goButton;
-=======
->>>>>>> fae43964cfc990668f1704ec9a66ba6e24a5ab6b
 	public static GDB_DTB_High_Interface GDHI;
+	private boolean longPress = false;
+	private float longPressX, longPressY;
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
@@ -44,7 +38,6 @@ public class WebActivity extends Activity {
 		addField  = (EditText) findViewById(R.id.editText1);
 		goButton = (Button) findViewById(R.id.button1);
 		webView.getSettings().setJavaScriptEnabled(true);
-<<<<<<< HEAD
 
 		webView.loadUrl("http://www.google.com");
 		addField.setText("http://www.google.com");
@@ -134,41 +127,8 @@ public class WebActivity extends Activity {
 	}
 	
 	class MyOnGestureListener extends SimpleOnGestureListener {
-=======
 		
-		webView.loadUrl("https://www.cs.purdue.edu/");
->>>>>>> fae43964cfc990668f1704ec9a66ba6e24a5ab6b
 		
-		GDHI = new GDB_DTB_High_Interface(this);
-		webView.setWebViewClient(new WebViewClient() {
-				
-			   	public void onPageFinished(WebView view, String url) {
-			        System.out.println(url);
-			        WebActivity.GDHI.setAction("viewPage");
-			        WebActivity.GDHI.setWebview(view);
-			        Thread viewP = new Thread(WebActivity.GDHI);
-			        viewP.start();
-			        
-			        /*String[][] test = WebActivity.GDHI.getHistory();
-			        if(test!=null)
-			        for(int i=0; i<test.length; i++){
-			        	System.out.println(test[i][0]+ "-"+ test[i][1]+ "-"+ test[i][2]+"-"+test[i][3]);
-			        }
-			        */
-			        
-			        System.out.println("----------start--------------");
-			        String test2[] = WebActivity.GDHI.gerWordByTitleWithCase("CCc");
-			        if(test2!=null)
-			        	for(int i=0; i<test2.length; i++)
-			        		System.out.println(test2[i]);
-			        	
-			        
-			        //String[] test2 = WebActivity.GDHI.getUrlInfo(test[0][1]);
-			    	//System.out.println(test2[0]+ "\n"+ test2[1]+ "\n"+ test2[2]);
-			    }
-			});
-		
-<<<<<<< HEAD
 
 		@Override
 		public void onLongPress(MotionEvent e) {
@@ -229,15 +189,53 @@ public class WebActivity extends Activity {
 		public void onShowPress(MotionEvent e) {
 		    Log.i(getClass().getName(), "onShowPress-----" + getActionName(e.getAction()));
 		}
-=======
-		//GDHI.viewPage(webView);
-        System.out.println("End");
-        
-		
-		//String customHtml = "<html><body><h2>Greetings from JavaCodeGeeks</h2></body></html>";
-		//webView.loadData(customHtml, "text/html", "UTF-8");
->>>>>>> fae43964cfc990668f1704ec9a66ba6e24a5ab6b
 
+		@Override
+		public boolean onDown(MotionEvent e) {
+		    Log.i(getClass().getName(), "onDown-----" + getActionName(e.getAction()));
+		    return false;
+		}
+
+		@Override
+		public boolean onDoubleTap(MotionEvent e) {
+		    Log.i(getClass().getName(), "onDoubleTap-----" + getActionName(e.getAction()));
+		    return false;
+		}
+
+		@Override
+		public boolean onDoubleTapEvent(MotionEvent e) {
+		    Log.i(getClass().getName(), "onDoubleTapEvent-----" + getActionName(e.getAction()));
+		    return false;
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+		    Log.i(getClass().getName(), "onSingleTapConfirmed-----" + getActionName(e.getAction()));
+		    return false;
+		}
+	}
+	
+	private String getActionName(int action) {
+	    String name = "";
+	    switch (action) {
+	        case MotionEvent.ACTION_DOWN: {
+	            name = "ACTION_DOWN";
+	            break;
+	        }
+	        case MotionEvent.ACTION_MOVE: {
+	            name = "ACTION_MOVE";
+	            break;
+	        }
+	        case MotionEvent.ACTION_UP: {
+	            name = "ACTION_UP";
+	            break;
+	        }
+	        default:
+	        break;
+	    }
+	    return name;
 	}
 
 }
+
+
