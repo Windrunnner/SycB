@@ -2,7 +2,7 @@ package GreatDouBaba;
 
 public class Historyhtml {
 		
-	public String Generatehtml(GDB_DTB_High_Interface gdb){
+	public static String Generatehtml(GDB_DTB_High_Interface gdb){
 		String[][] tmp=gdb.getHistory();
 		String htmlcontext="";
 		String htmlhead="<!DOCTYPE html> <html> <head> <title>History</title> </head>";

@@ -1,19 +1,23 @@
 package com.example.sycb;
 
+import GreatDouBaba.Bookmarkhtml;
 import GreatDouBaba.GDB_DTB_High_Interface;
+import GreatDouBaba.Historyhtml;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.*;
 import android.view.View.OnTouchListener;
-import android.view.animation.Animation;
 import android.view.animation.*;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.graphics.Bitmap;
 
@@ -28,6 +32,7 @@ public class WebActivity extends Activity {
 	public static GDB_DTB_High_Interface GDHI;
 	private boolean longPress = false;
 	private float longPressX, longPressY;
+	private int choosenItem = 0;
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
@@ -43,12 +48,25 @@ public class WebActivity extends Activity {
 		addField.setText("http://www.google.com");
 
 		GDHI = new GDB_DTB_High_Interface(this);
+		addField.setOnEditorActionListener(new OnEditorActionListener(){
+
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_GO
+                        || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER))
+					webView.loadUrl(addField.getText().toString());
+				return false;
+			}
+			
+		});
 		webView.setWebViewClient(new WebViewClient() {
 			@Override
 			public void onPageStarted(WebView view, String url, Bitmap favicon){
 				addField.setText(url);
 				addField.setVisibility(View.VISIBLE);
 		    	goButton.setVisibility(View.VISIBLE);
+		    	if(!(webView.getUrl().indexOf("data:text/html")==0))
+		    		GDHI.viewPage(webView);
 				super.onPageStarted(view, url, favicon);
 			}
 			
@@ -88,22 +106,48 @@ public class WebActivity extends Activity {
 		        	if(Math.sqrt(
 		        			(offX * offX)+
 		        			(offY * offY)) > 50){
-		        		if (offD < 45 && offD > -90)
+		        		if (offD < 45 && offD > -90) {
 		        			img.setImageDrawable(getResources().getDrawable(R.drawable.rmenu));
-		        		else if (offD < -90 || offD > 135)
+		        			choosenItem = 1;
+		        		}
+		        		else if (offD < -90 || offD > 135) {
 		        			img.setImageDrawable(getResources().getDrawable(R.drawable.lmenu));
-		        		else if (offD < 135 && offD > 45)
+		        			choosenItem = 2;
+		        		}
+		        		else if (offD < 135 && offD > 45){
 		        			img.setImageDrawable(getResources().getDrawable(R.drawable.dmenu));
-		        	}else
+		        			choosenItem = 3;
+		        		}
+		        	}else {
 		        		img.setImageDrawable(getResources().getDrawable(R.drawable.normalmenu));
+		        		choosenItem = 0;
+		        	}
 		        }
 		        if (event.getAction() == MotionEvent.ACTION_UP){
 		        	if (longPress){
 		        		img.setVisibility(View.INVISIBLE);
+		        	
+		        		longPress = false;
+		        		switch (choosenItem) {
+		        			case 1://Bookmark
+		        				webView.loadData(Bookmarkhtml.Generatehtml(GDHI), "text/html", "UTF-8");
+		        				Log.d("LPmenu", "Bookmarkhtml.Generatehtml");
+		        				break;
+		        			case 2://History
+		        				webView.loadData(Historyhtml.Generatehtml(GDHI), "text/html", "UTF-8");
+		        				Log.d("LPmenu", "Historyhtml.Generatehtml");
+		        				break;
+		        			case 3://add
+		        				GDHI.addBookmark(webView);
+		        				Log.d("LPmenu", "GDHI.addBookmark");
+		        				break;
+		        		}
 		        	}
-		        	longPress = false;
 		        }
-		        return mGestureDetector.onTouchEvent(event);
+		        if (!longPress)
+		        	return mGestureDetector.onTouchEvent(event);
+		        else 
+		        	return true;
 		    }
 		});
 		// GDHI.viewPage(webView);
