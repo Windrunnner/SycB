@@ -21,7 +21,9 @@
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true"
     android:layout_toLeftOf="@+id/button1"
-    android:ems="10" >
+    android:ems="10"
+    android:singleLine="true"
+    android:imeOptions="actionGo" >
 
     <requestFocus />
 </EditText>

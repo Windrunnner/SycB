@@ -235,6 +235,7 @@ public class GDB_DTB_High_Interface implements Runnable {
 	public void addBookmark(WebView webview) {
 		String Url = webview.getUrl();
 		String Title = webview.getTitle();
+		Log.d("GDHI", Url+"="+Title);
 		connecter.addBookmark(Url, Title);
 	}
 	
