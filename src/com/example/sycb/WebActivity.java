@@ -1,6 +1,10 @@
 package com.example.sycb;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Timer;
 
 import GreatDouBaba.Bookmarkhtml;
@@ -11,6 +15,7 @@ import GreatDouBaba.Historyhtml;
 import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.*;
@@ -41,21 +46,32 @@ public class WebActivity extends Activity {
 	private float longPressX, longPressY;
 	private int choosenItem = 0;
 	private Thread syncThread = null;
+	private static FileRec fr;
 	public void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
 		System.out.println("Start");
 		setContentView(R.layout.webcontent);
-
+		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().build());
 		webView = (WebView) findViewById(R.id.webView);
 		addField  = (EditText) findViewById(R.id.editText1);
 		goButton = (Button) findViewById(R.id.button1);
+		
 		webView.getSettings().setJavaScriptEnabled(true);
 		try {
-			new FileRec(2333, "/data/data/com.example.sync/databases/default_info.db").start();
+			fr = new FileRec(23333, "/data/data/com.example.sycb/databases/");
+			fr.start();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		if (hostIP != null && !hostIP.equals("")){	
+			try {
+				new FileSender().sendsig(hostIP, 23333, GetLocalIpAddress());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		webView.loadUrl("http://www.google.com");
 		addField.setText("http://www.google.com");
@@ -67,7 +83,10 @@ public class WebActivity extends Activity {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_GO
                         || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER))
-					webView.loadUrl(addField.getText().toString());
+					if (addField.getText().toString().indexOf("http://") !=0 &&addField.getText().toString().indexOf("https://") !=0)
+						webView.loadUrl("http://"+addField.getText().toString());
+					else
+						webView.loadUrl(addField.getText().toString());
 				return false;
 			}
 			
@@ -186,6 +205,25 @@ public class WebActivity extends Activity {
 					Toast.LENGTH_LONG).show();
 
 	}
+	
+	public static String GetLocalIpAddress()
+    {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                for (Enumeration<InetAddress> enumIpAddr = en.nextElement().getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()) {
+                    	//System.out.println(inetAddress.getHostAddress().toString());
+                        return inetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            return "ERROR Obtaining IP";
+        }
+        return "No IP Available";   
+    }
+	
 	public void goURL(View view){
 		webView.loadUrl(addField.getText().toString());
 	}
@@ -193,15 +231,18 @@ public class WebActivity extends Activity {
 		Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
 	}
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event){
+	public boolean onKeyUp(int keyCode, KeyEvent event){
 		if (keyCode == KeyEvent.KEYCODE_BACK && hostIP != null && !hostIP.equals("")) {
 			try {
-				new FileSender().sendFile(hostIP, 2333, "/data/data/com.example.sync/databases/default_info.db");
+				new FileSender().sendFile(hostIP, 23333, "/data/data/com.example.sycb/databases/default_info.db");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return false;
 			}
+			this.finish();
 		}
+		
 		return false;
 	}
 	class MyOnGestureListener extends SimpleOnGestureListener {

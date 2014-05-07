@@ -4,10 +4,12 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import android.util.Log;
+
 public class FileRec {
 	 
     private int listenPort;
- 
+    public static ListenThread lt;
     private String savePath;
  
     public FileRec (int listenPort, String savePath) throws IOException {
@@ -16,12 +18,14 @@ public class FileRec {
  
         File file = new File(savePath);
         if (!file.exists() && !file.mkdirs()) {
+        	Log.e("FileRec", "ex="+file.exists()+" md="+file.mkdirs());
             throw new IOException("Unable to create " + savePath);
         }
     }
  
     public void start() {
-        new ListenThread().start();
+    	lt = new ListenThread();
+    	lt.start();
     }
  
     public static int b2i(byte[] b) {
@@ -34,13 +38,13 @@ public class FileRec {
     }
  
  
-    private class ListenThread extends Thread {
+    public class ListenThread extends Thread {
  
         @Override
         public void run() {
             try {
                 ServerSocket server = new ServerSocket(listenPort);
- 
+                Log.d("FileRec", "new ServerSocket():"+listenPort);
                 while (true) {
                     Socket socket = server.accept();
                     new HandleThread(socket).start();

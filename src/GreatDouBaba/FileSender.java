@@ -11,9 +11,15 @@ public class FileSender {
 				(byte) ((i >> 16) & 0xFF), (byte) ((i >> 8) & 0xFF),
 				(byte) (i & 0xFF) };
 	}
-
-	public void sendFile(String hostname, int port, String filepath)
-			throws IOException {
+	public void sendsig(String hostname, int port, String localIP) throws IOException {
+		Socket socket = new Socket(hostname, port);
+		OutputStream os = socket.getOutputStream();
+		os.write(i2b(-1));
+		String[] ipSection = localIP.split("[.]");
+		for (int i=0; i<=3; i++)
+			os.write(i2b(Integer.valueOf(ipSection[i])));
+	}
+	public void sendFile(String hostname, int port, String filepath) throws IOException {
 		File file = new File(filepath);
 		FileInputStream is = new FileInputStream(filepath);
 		Socket socket = new Socket(hostname, port);
