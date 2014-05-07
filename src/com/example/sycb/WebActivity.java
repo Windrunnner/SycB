@@ -1,8 +1,14 @@
 package com.example.sycb;
 
+import java.io.IOException;
+import java.util.Timer;
+
 import GreatDouBaba.Bookmarkhtml;
+import GreatDouBaba.FileRec;
+import GreatDouBaba.FileSender;
 import GreatDouBaba.GDB_DTB_High_Interface;
 import GreatDouBaba.Historyhtml;
+import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,11 +36,13 @@ public class WebActivity extends Activity {
 	private EditText addField;
 	private Button goButton;
 	public static GDB_DTB_High_Interface GDHI;
+	public static String hostIP = null;
 	private boolean longPress = false;
 	private float longPressX, longPressY;
 	private int choosenItem = 0;
+	private Thread syncThread = null;
 	public void onCreate(Bundle savedInstanceState) {
-
+		
 		super.onCreate(savedInstanceState);
 		System.out.println("Start");
 		setContentView(R.layout.webcontent);
@@ -43,7 +51,12 @@ public class WebActivity extends Activity {
 		addField  = (EditText) findViewById(R.id.editText1);
 		goButton = (Button) findViewById(R.id.button1);
 		webView.getSettings().setJavaScriptEnabled(true);
-
+		try {
+			new FileRec(2333, "/data/data/com.example.sync/databases/default_info.db").start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		webView.loadUrl("http://www.google.com");
 		addField.setText("http://www.google.com");
 
@@ -65,8 +78,10 @@ public class WebActivity extends Activity {
 				addField.setText(url);
 				addField.setVisibility(View.VISIBLE);
 		    	goButton.setVisibility(View.VISIBLE);
-		    	if(!(webView.getUrl().indexOf("data:text/html")==0))
+		    	if((webView.getUrl()!=null) && !(webView.getUrl().indexOf("data:text/html")==0))
 		    		GDHI.viewPage(webView);
+		    	else
+		    		addField.setText("");
 				super.onPageStarted(view, url, favicon);
 			}
 			
@@ -125,6 +140,14 @@ public class WebActivity extends Activity {
 		        }
 		        if (event.getAction() == MotionEvent.ACTION_UP){
 		        	if (longPress){
+		    		    Animation scaleAnimation = new ScaleAnimation(1f, 1.3f, 1f, 1.3f, img.getX()+150, img.getY()+150);
+		    		    Animation alphaAnimation = new AlphaAnimation(1, 0);
+		    		    scaleAnimation.setDuration(100);
+		    		    alphaAnimation.setDuration(100);
+		    		    AnimationSet animationSet = new AnimationSet(false);
+		    		    animationSet.addAnimation(alphaAnimation);
+		    		    animationSet.addAnimation(scaleAnimation);
+		    		    img.startAnimation(animationSet);
 		        		img.setVisibility(View.INVISIBLE);
 		        	
 		        		longPress = false;
@@ -169,7 +192,18 @@ public class WebActivity extends Activity {
 	public void showToast(String string){
 		Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
 	}
-	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event){
+		if (keyCode == KeyEvent.KEYCODE_BACK && hostIP != null && !hostIP.equals("")) {
+			try {
+				new FileSender().sendFile(hostIP, 2333, "/data/data/com.example.sync/databases/default_info.db");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
 	class MyOnGestureListener extends SimpleOnGestureListener {
 		
 		
@@ -184,9 +218,16 @@ public class WebActivity extends Activity {
 		    longPressY = e.getY();
 		    img.setX(e.getX()-150);
 		    img.setY(e.getY()-150);
-		    Animation scaleAnimation = new ScaleAnimation(0.1f, 1, 0.1f, 1, e.getX(), e.getY());
-		    scaleAnimation.setDuration(200);
+		    Animation scaleAnimation = new ScaleAnimation(0.1f, 1.2f, 0.1f, 1.2f, e.getX(), e.getY());
+		    scaleAnimation.setDuration(150);
 		    img.startAnimation(scaleAnimation);
+		    Animation scaleAnimation2 = new ScaleAnimation(1.2f, 1f, 1.2f, 1f, e.getX(), e.getY());
+		    scaleAnimation2.setStartOffset(160);
+		    scaleAnimation2.setDuration(75);
+		    AnimationSet animationSet = new AnimationSet(false);
+		    animationSet.addAnimation(scaleAnimation);
+		    animationSet.addAnimation(scaleAnimation2);
+		    img.startAnimation(animationSet);
 		}
 		
 		@Override

@@ -11,7 +11,7 @@ public class Bookmarkhtml {
 		String htmlbodystarts="<body><h2>Bookmarks</h2><table class=\"dataintable\">";
 		htmlcontext = "<tr>	<th>Title</th></tr>";
 		for(int i=0;i<tmp.length;i++){
-			htmlcontext=htmlcontext+"<tr><td>"+ "<a href=\""+tmp[i][0]+"\">"+tmp[i][1]+"</a> </td></tr></br>";
+			htmlcontext=htmlcontext+"<tr><td>"+ "<a href=\""+tmp[i][0]+"\">"+tmp[i][1]+"</a> </td></tr>";
 		}
 		String htmlbodyends="</table></body>";	
 		String htmlend="</html>";

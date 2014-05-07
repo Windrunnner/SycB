@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 
 public class MainActivity extends Activity {
 
@@ -25,6 +26,8 @@ public class MainActivity extends Activity {
 
 		  @Override
 		  public void onClick(View arg0) {
+			EditText IPText = (EditText) (findViewById(R.id.IPText));
+			WebActivity.hostIP = IPText.getText().toString();
 		    Intent intent = new Intent(context, WebActivity.class);
 		    startActivity(intent);
 		  }
